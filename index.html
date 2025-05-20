@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HKB</title>
+  <link rel="shortcut icon" href="/images/blankhkb.png">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body, html {
+      height: 100%;
+      font-family: 'Orbitron', sans-serif;
+      color: white;
+      overflow-x: hidden;
+    }
+    body {
+      background: url('/images/backgroundshit.gif') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .overlay-enter {
+      position: fixed;
+      z-index: 9999;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      width: 100%;
+      height: 100%;
+      color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .audio-controls {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 10;
+    }
+
+    #audio-control {
+      font-size: 1.2rem;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 8px 12px;
+      border: 1px solid white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #volume-slider {
+      width: 100px;
+    }
+
+    .nav {
+      text-align: center;
+      margin-top: 2rem;
+      z-index: 3;
+    }
+
+    .nav a {
+      color: white;
+      font-size: 1.5rem;
+      padding: 1rem;
+      text-decoration: none;
+      border-radius: 10px;
+      margin: 0 10px;
+    }
+
+    .nav a:hover {
+      background: black;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+      padding: 10rem 2rem 2rem;
+    }
+
+    .card {
+      background: transparent;
+      border-radius: 10px;
+      width: 180px;
+      height: 280px;
+      perspective: 1000px;
+      transition: transform 0.3s ease;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+      position: relative;
+    }
+
+    .card:hover .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      box-shadow: 0 0 25px black;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      backdrop-filter: blur(3px);
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0.5rem;
+    }
+
+    .card img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid black;
+      margin: 0 auto 1rem;
+      display: block;
+    }
+
+    .name {
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: black;
+      margin-bottom: 0.2rem;
+    }
+
+    .role {
+      font-style: italic;
+      color: black;
+      margin-bottom: 1rem;
+    }
+
+    .socials {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .socials div {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: white;
+    }
+
+    .socials i.fa-telegram { color: #0088cc; }
+    .socials i.fa-discord { color: #7289da; }
+
+    .page { display: none; }
+    .active { display: block; }
+
+    .typewriter {
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: .15em solid black;
+      font-size: 2rem;
+      margin: 2rem auto;
+      text-align: center;
+      color: white;
+      animation: typing 6s steps(40, end), blink-caret 0.75s step-end infinite;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink-caret {
+      from, to { border-color: transparent; }
+      50% { border-color: black; }
+    }
+
+    .sparkle-text {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+      position: relative;
+    }
+
+    .sparkle-text::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, black 0%, transparent 60%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+      animation: sparkle 2s infinite linear;
+    }
+
+    @keyframes sparkle {
+      0% { background-position: 0 0; }
+      100% { background-position: 100% 100%; }
+    }
+
+    #view-counter {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    .card:not(.eclipse, .dark):hover .card-inner {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px 10px black;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="overlay-enter" id="enter-overlay" onclick="initSite()"><img src="/images/blankhkb.png" alt="HKB"></div>
+
+<div class =nav>
+    <h1>HELLO KITTY BOYS</h1>
+    <br>
+    <h1>ANTI PEDOPHILIA</h1>
+</div>
+
+
+<audio id="bg-audio">
+  <source src="/music/hkb.mp3" type="audio/mpeg">
+</audio>
+
+  <div id="home" class="page active">
+    <div class="container">
+      <!-- CARD: asylum -->
+      <div class="card asylum">
+        <div class="card-inner">
+          <div class="card-front">
+            <img src="/pfps/hkbkbkbk.png" alt="asylum">
+            <div class="name">Asylum</div>
+            <div class="role">@beg</div>
+            <div class="socials">
+              <div><i class="fab fa-discord">discord @moderative</i></div>
+              <div><i class="fab fa-telegram"> tele @comlord</i></div>
+            </div>
+          </div>
+          <div class="card-back">
+            <div class="name">discord @moderative</div>
+          </div> 
+        </div>
+      </div>
+
+       <!-- CARD: kaid -->
+      <div class="card asylum">
+        <div class="card-inner">
+          <div class="card-front">
+            <img src="/pfps/kaid.png" alt="kaid">
+            <div class="name">Kaid</div>
+            <div class="role">@kaid</div>
+            <div class="socials">
+              <div><i class="fab fa-discord">discord @smokeinmylungss</i></div>
+              <div><i class="fab fa-telegram"> tele @shesinmyheadd</i></div>
+            </div>
+          </div>
+          <div class="card-back">
+            <div class="name">discord @smokeinmylungss</div>
+          </div> 
+        </div>
+      </div>
+      <!-- CARD: lost -->
+      <div class="card lost">
+        <div class="card-inner">
+          <div class="card-front">
+            <img src="/pfps/pureheat.jpg" alt="lost">
+            <div class="name">Lost</div>
+            <div class="role">@lostfolders</div>
+            <div class="socials">
+              <div><i class="fab fa-discord">discord @losthkb</i></div>
+              <div><i class="fab fa-telegram"> tele @femlost</i></div>
+            </div>
+          </div>
+          <div class="card-back">
+            <div class="name">discord @losthkb</div>
+          </div> 
+        </div>
+      </div>
+
+      <!-- CARD: Auth -->
+      <div class="card auth">
+        <div class="card-inner">
+          <div class="card-front">
+            <img src="/pfps/auth.png" alt="auth">
+            <div class="name">Auth</div>
+            <div class="role">@extsec</div>
+            <div class="socials">
+              <div><i class="fab fa-discord">discord @larpingmonero</i></div>
+              <div><i class="fab fa-telegram"> tele @edringextorters</i></div>
+            </div>
+          </div>
+          <div class="card-back">
+            <div class="name">discord @larpingmonero</div>
+          </div> 
+        </div>
+      </div>
+
+      <!-- CARD: mp5 -->
+      <div class="card mp5">
+        <div class="card-inner">
+          <div class="card-front">
+            <img src="/pfps/MP5.png" alt="mp5">
+            <div class="name">MP5</div>
+            <div class="role">@warkid</div>
+            <div class="socials">
+              <div><i class="fab fa-discord">discord @81rx</i></div>
+              <div><i class="fab fa-telegram"> tele @sinnul</i></div>
+            </div>
+          </div>
+          <div class="card-back">
+            <div class="name">discord @81rx</div>
+          </div> 
+        </div>
+      </div>
+
+<script>
+  function initSite() {
+    document.getElementById('enter-overlay').style.display = 'none';
+    // Play audio when overlay is clicked
+    var audio = document.getElementById('bg-audio');
+    if (audio) {
+      audio.play();
+    }
+  }
+
+  function showPage(page) {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(p => p.classList.remove('active'));
+    document.getElementById(page).classList.add('active');
+  }
+</script>
+</script>
